@@ -62,10 +62,42 @@ extern int swayipc_get_outputs(char* outputs);
 
 // gets the node layout
 // Returns 0 on success or -1 on error.
-extern int swayipc_get_tree(char** tree);
+extern int swayipc_get_tree(char* tree);
 
 // gets sway version info
 // Returns 0 on success or -1 on error.
 extern int swayipc_get_version(char* version);
+
+// gets list of current marks
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_marks(char* marks);
+
+// gets list of current bar configs
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_bar_config(char* bar_config);
+
+// gets list of current binding modes
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_binding_modes(char* binding_modes);
+
+// gets current sway config
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_config(char* config);
+
+// gets current sway binding state
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_binding_state(char* binding_state);
+
+// gets list of current inputs
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_inputs(char* inputs);
+
+// gets list of current seats
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_seats(char* seats);
+
+// gets list of current workspaces
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_workspaces(char* workspaces);
 
 #endif
