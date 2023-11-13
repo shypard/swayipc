@@ -14,17 +14,18 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define LEN 2048
+char data[LEN];
+
 static void test_swayipc_get_version(void **state) {
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_version(data), 0);
+    assert_int_equal(swayipc_get_version(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_outputs(void **state) {
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_outputs(data), 0);
+    assert_int_equal(swayipc_get_outputs(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
@@ -39,58 +40,50 @@ static void test_swayipc_open(void **state){
 }
 
 static void test_swayipc_get_workspaces(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_workspaces(data), 0);
+    assert_int_equal(swayipc_get_workspaces(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_tree(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_tree(data), 0);
+    assert_int_equal(swayipc_get_tree(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_bar_config(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_bar_config(data), 0);
+    assert_int_equal(swayipc_get_bar_config(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_binding_modes(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_binding_modes(data), 0);
+    assert_int_equal(swayipc_get_binding_modes(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_config(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_config(data), 0);
+    assert_int_equal(swayipc_get_config(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_inputs(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_inputs(data), 0);
+    assert_int_equal(swayipc_get_inputs(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_marks(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_marks(data), 0);
+    assert_int_equal(swayipc_get_marks(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
 static void test_swayipc_get_seats(void **state){
-    char data[256];
     assert_int_equal(swayipc_init(), 0);
-    assert_int_equal(swayipc_get_seats(data), 0);
+    assert_int_equal(swayipc_get_seats(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
