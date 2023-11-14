@@ -111,13 +111,31 @@ int socket_recv(int fd, message_s* msg)
     return 0;
 }
 
-int recv_n(int fd, void* buffer, size_t size)
+int socket_peek(int fd, message_s* msg) {
+    char header[IPC_HEADER_SIZE];
+
+    // Receive incoming header
+    if (recv_n(fd, header, IPC_HEADER_SIZE, MSG_PEEK) == -1) {
+        perror("Unable to receive IPC response");
+        return -errno;
+    }
+
+    // Create message from header
+    memcpy(&msg->size, header + sizeof(ipc_magic), sizeof(msg->size));
+    memcpy(&msg->type, header + sizeof(ipc_magic) + sizeof(msg->size),
+           sizeof(msg->type));
+
+    return 0;
+}
+
+
+int recv_n(int fd, void* buffer, size_t size, int flags)
 {
     size_t  total = 0;
     ssize_t received;
 
     while (total < size) {
-        received = recv(fd, (char*)buffer + total, size - total, 0);
+        received = recv(fd, (char*)buffer + total, size - total, flags);
         if (received <= 0) {
             return -1;
         }

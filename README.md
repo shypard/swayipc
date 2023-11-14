@@ -9,8 +9,8 @@ IPC.
 be installed (on Red Hat based distros) as follows:
 
 ```bash
-sudo dnf -y install meson               # install build tools
-sudo dnf -y install libcmocka-devel     # install external libraries
+sudo dnf -y install meson                       # install build tools
+sudo dnf -y install libcmocka-devel cjson-devel # install external libraries
 ```
 
 To build and install the library, run the following commands:

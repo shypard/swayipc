@@ -1,6 +1,8 @@
 #ifndef SWAYIPC_H
 #define SWAYIPC_H
 
+#include "events.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -24,21 +26,9 @@ enum message_type {
     GET_SEATS         = 101
 };
 
-// sway event types
-enum event_type {
-    WORKSPACE        = 0x80000000,
-    MODE             = 0x80000002,
-    WINDOW           = 0x80000003,
-    BARCONFIG_UPDATE = 0x80000004,
-    BINDING          = 0x80000005,
-    SHUTDOWN         = 0x80000006,
-    TICK             = 0x80000007,
-    BAR_STATE_UPDATE = 0x80000014,
-    INPUT            = 0x80000015
-};
-
 // sway socket file descriptor
-extern int swayipc_fd;
+extern int         swayipc_fd;
+extern const char* event_strings[];
 
 // Initializes swayipc.
 // Returns 0 on success or -1 on error.
@@ -54,7 +44,7 @@ extern int swayipc_send_command(const char* command, size_t len);
 
 // subscribe to sway events
 // Returns 0 on success or -1 on error.
-extern int swayipc_subscribe(const char* event, size_t len);
+extern int swayipc_subscribe(enum event_type* events, size_t len);
 
 // gets list of current outputs
 // Returns 0 on success or -1 on error.
@@ -99,5 +89,9 @@ extern int swayipc_get_seats(char* seats, size_t len);
 // gets list of current workspaces
 // Returns 0 on success or -1 on error.
 extern int swayipc_get_workspaces(char* workspaces, size_t len);
+
+// gets sway event
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_event(char* event, size_t len);
 
 #endif

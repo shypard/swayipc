@@ -87,6 +87,13 @@ static void test_swayipc_get_seats(void **state){
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
+static void test_swayipc_subscribe(void **state){
+    enum event_type events[] = {WORKSPACE, WINDOW, INPUT};
+    assert_int_equal(swayipc_init(), 0);
+    assert_int_equal(swayipc_subscribe(events, 3), 0);
+    assert_int_equal(swayipc_shutdown(), 0);
+}
+
 int main(void){
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_swayipc_open),
@@ -101,6 +108,7 @@ int main(void){
         cmocka_unit_test(test_swayipc_get_inputs),
         cmocka_unit_test(test_swayipc_get_marks),
         cmocka_unit_test(test_swayipc_get_seats),
+        cmocka_unit_test(test_swayipc_subscribe),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
