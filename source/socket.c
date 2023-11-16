@@ -81,7 +81,7 @@ int socket_recv(int fd, message_s* msg)
     char header[IPC_HEADER_SIZE];
 
     // Receive incoming header
-    if (recv_n(fd, header, IPC_HEADER_SIZE) == -1) {
+    if (recv_n(fd, header, IPC_HEADER_SIZE, 0) == -1) {
         perror("Unable to receive IPC response");
         return -errno;
     }
@@ -99,7 +99,7 @@ int socket_recv(int fd, message_s* msg)
     }
 
     // Receive incoming data
-    if (recv_n(fd, msg->data, msg->size) == -1) {
+    if (recv_n(fd, msg->data, msg->size, 0) == -1) {
         perror("Unable to receive IPC response");
         free(msg->data);
         return -errno;

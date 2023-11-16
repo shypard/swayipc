@@ -1,7 +1,7 @@
 project('swayipc', 'c', version: '1.0', license: 'MIT')
 project_description = 'A C library to communicate with swaywm\'s IPC interface'
-project_source_files = [ 'source/swayipc.c', 'source/socket.c' ]
-project_header_files = [ 'include/swayipc.h', 'include/socket.h' ]
+project_source_files = [ 'source/swayipc.c', 'source/socket.c', 'source/events.c' ]
+project_header_files = [ 'include/swayipc.h', 'include/socket.h', 'include/events.h' ]
 project_test_files = ['tests/test_swayipc.c']
 project_example_files = ['examples/get_version.c']
 public_headers = include_directories('include')

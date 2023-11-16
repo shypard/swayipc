@@ -17,6 +17,6 @@ int socket_recv(int fd, message_s* msg);
 int socket_peek(int fd, message_s* msg);
 int socket_send(int fd, const message_s* msg);
 int socket_request(int fd, const message_s* msg, message_s* reply);
-int recv_n(int fd, void* buffer, size_t size);
+int recv_n(int fd, void* buffer, size_t size, int flags);
 
 #endif

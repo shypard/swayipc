@@ -38,6 +38,14 @@ extern int swayipc_init(void);
 // Returns 0 on success or -1 on error.
 extern int swayipc_shutdown(void);
 
+// Get last sway event.
+// Returns 0 on success or -1 on error.
+extern int swayipc_get_event(enum event_type* event);
+
+// Check if event is a sway event.
+// Returns 0 on success or -1 on error.
+extern int swayipc_is_event(int event);
+
 // Sends a command to sway.
 // Returns 0 on success or -1 on error.
 extern int swayipc_send_command(const char* command, size_t len);
@@ -89,9 +97,5 @@ extern int swayipc_get_seats(char* seats, size_t len);
 // gets list of current workspaces
 // Returns 0 on success or -1 on error.
 extern int swayipc_get_workspaces(char* workspaces, size_t len);
-
-// gets sway event
-// Returns 0 on success or -1 on error.
-extern int swayipc_get_event(char* event, size_t len);
 
 #endif

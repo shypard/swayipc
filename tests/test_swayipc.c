@@ -1,10 +1,11 @@
 #include "swayipc.h"
 
-#include <stdarg.h>
+// clang-format off
+// clang-format sorts the includes in alphabetical order, however setjmp.h must
+// be included before cmocka.h
 #include <errno.h>
 #include <fcntl.h>
 #include <setjmp.h>
-#include <cmocka.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -13,88 +14,105 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <cmocka.h>
+// clang-format on
 
 #define LEN 2048
 char data[LEN];
 
-static void test_swayipc_get_version(void **state) {
+static void test_swayipc_get_version(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_version(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_outputs(void **state) {
+static void test_swayipc_get_outputs(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_outputs(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_close(void **state){
+static void test_swayipc_close(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_open(void **state){
+static void test_swayipc_open(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_workspaces(void **state){
+static void test_swayipc_get_workspaces(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_workspaces(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_tree(void **state){
+static void test_swayipc_get_tree(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_tree(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_bar_config(void **state){
+static void test_swayipc_get_bar_config(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_bar_config(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_binding_modes(void **state){
+static void test_swayipc_get_binding_modes(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_binding_modes(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_config(void **state){
+static void test_swayipc_get_config(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_config(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_inputs(void **state){
+static void test_swayipc_get_inputs(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_inputs(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_marks(void **state){
+static void test_swayipc_get_marks(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_marks(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_get_seats(void **state){
+static void test_swayipc_get_seats(void** state)
+{
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_get_seats(data, LEN), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-static void test_swayipc_subscribe(void **state){
-    enum event_type events[] = {WORKSPACE, WINDOW, INPUT};
+static void test_swayipc_subscribe(void** state)
+{
+    enum event_type events[] = {SWAY_EVENT_WORKSPACE, SWAY_EVENT_INPUT,
+                                SWAY_EVENT_MODE};
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_subscribe(events, 3), 0);
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
-int main(void){
+int main(void)
+{
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_swayipc_open),
         cmocka_unit_test(test_swayipc_close),

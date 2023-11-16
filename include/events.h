@@ -7,15 +7,15 @@
 
 // sway event types
 enum event_type {
-    WORKSPACE,
-    MODE,
-    WINDOW,
-    BARCONFIG_UPDATE,
-    BINDING,
-    SHUTDOWN,
-    TICK,
-    BAR_STATE_UPDATE,
-    INPUT
+    SWAY_EVENT_WORKSPACE,
+    SWAY_EVENT_MODE,
+    SWAY_EVENT_WINDOW,
+    SWAY_EVENT_BARCONFIG_UPDATE,
+    SWAY_EVENT_BINDING,
+    SWAY_EVENT_SHUTDOWN,
+    SWAY_EVENT_TICK,
+    SWAY_EVENT_BAR_STATE_UPDATE,
+    SWAY_EVENT_INPUT
 };
 
 typedef struct {
@@ -26,18 +26,12 @@ typedef struct {
     pthread_mutex_t lock;
 } event_queue_s;
 
-// TODO: implement event queue functions
-int event_queue_init(event_queue_s* queue);
+event_queue_s* event_queue_init(void);
 int event_queue_push(event_queue_s* queue, enum event_type event);
 int event_queue_pop(event_queue_s* queue, enum event_type* event);
 int event_queue_destroy(event_queue_s* queue);
 int event_queue_is_empty(event_queue_s* queue);
 int event_queue_is_full(event_queue_s* queue);
-
-// TODO: implement check for event
-int swayipc_is_event(int event);
-
-// TODO: implement event stream
-int swayipc_get_event(void);
+int event_queue_destroy(event_queue_s* queue);
 
 #endif
