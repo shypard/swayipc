@@ -7,11 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int         swayipc_fd;
-const char* event_strings[] = {
-    "workspace", "mode",     "window", "barconfig_update",
-    "binding",   "shutdown", "tick",   "bar_state_update",
-    "input"};
+int            swayipc_fd;
 event_queue_s* events;
 
 int swayipc_init(void)
@@ -38,16 +34,15 @@ int swayipc_shutdown(void)
     return 0;
 }
 
-int swayipc_get_event(enum event_type* event)
+event_s* swayipc_get_event(void)
 {
-    if (event_queue_is_empty(events)) return -1;
-
-    if (event_queue_pop(events, event) < 0) return -1;
-
-    return 0;
+    if (event_queue_is_empty(events)) {
+        return NULL;
+    }
+    return event_queue_pop(events);
 }
 
-int swayipc_is_event(int event)
+int swayipc_is_event(uint32_t event)
 {
     switch (event) {
     case SWAY_EVENT_WORKSPACE:
@@ -63,21 +58,66 @@ int swayipc_is_event(int event)
     }
 }
 
+// Converts a sway event type to its string representation
+const char* swayipc_get_event_string(uint32_t event)
+{
+    switch (event) {
+    case SWAY_EVENT_WORKSPACE:
+        return "workspace";
+    case SWAY_EVENT_MODE:
+        return "mode";
+    case SWAY_EVENT_WINDOW:
+        return "window";
+    case SWAY_EVENT_BARCONFIG_UPDATE:
+        return "barconfig_update";
+    case SWAY_EVENT_BINDING:
+        return "binding";
+    case SWAY_EVENT_SHUTDOWN:
+        return "shutdown";
+    case SWAY_EVENT_TICK:
+        return "tick";
+    case SWAY_EVENT_INPUT:
+        return "input";
+    default:
+        return "unknown";
+    }
+}
+
 int swayipc_handle_events(void)
 {
     message_s msg;
 
+    printf("Handling new events...\n");
+    /* check if there is a message */
     if (socket_peek(swayipc_fd, &msg) < 0) {
         perror("Cannot send request");
         return -errno;
     }
-    /* check if reply is an event and save to event stream */
-    if (swayipc_is_event(msg.type) == 0) {
-        printf("Event: %s\n", msg.data);
-        // TODO: save to event stream
-        // TODO: remove from socket buffer
+
+    printf("New message received, checking if event\n");
+    /* check incoming is an event and save to event stream */
+    if (swayipc_is_event(msg.type)) {
+        printf("There is a new event -> saving to queue\n");
+
+        // create new event
+        event_s* event = malloc(sizeof(event_s));
+        if (event == NULL) {
+            perror("Cannot allocate memory for event");
+            return -errno;
+        }
+
+        event->type = msg.type;
+        event->size = msg.size;
+        event->data = msg.data;
+
+        // push event to event queue
+        event_queue_push(events, event);
+
+        // remove message from socket
+        socket_recv(swayipc_fd, NULL);
         return 0;
     } else {
+        socket_recv(swayipc_fd, &msg);
         return -1;
     }
 }
@@ -93,7 +133,7 @@ int swayipc_subscribe(enum event_type* events, size_t len)
     for (size_t i = 0; i < len; i++) {
         if (i > 0) buf[pos++] = ',';
         pos += snprintf(&buf[pos], sizeof(buf) - pos, "\"%s\"",
-                        event_strings[events[i]]);
+                        swayipc_get_event_string(events[i]));
     }
 
     buf[pos++] = ']';

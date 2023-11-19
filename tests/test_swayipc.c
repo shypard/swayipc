@@ -105,11 +105,20 @@ static void test_swayipc_get_seats(void** state)
 
 static void test_swayipc_subscribe(void** state)
 {
-    enum event_type events[] = {SWAY_EVENT_WORKSPACE, SWAY_EVENT_INPUT,
-                                SWAY_EVENT_MODE};
+    enum event_type events[] = {SWAY_EVENT_MODE, SWAY_EVENT_INPUT,
+                                SWAY_EVENT_WORKSPACE};
     assert_int_equal(swayipc_init(), 0);
     assert_int_equal(swayipc_subscribe(events, 3), 0);
     assert_int_equal(swayipc_shutdown(), 0);
+}
+
+event_s* create_sample_event(enum event_type type, void* data, size_t size)
+{
+    event_s* event = malloc(sizeof(event_s));
+    event->type    = type;
+    event->data    = data;
+    event->size    = size;
+    return event;
 }
 
 static void test_event_queue_init(void** state)
@@ -120,59 +129,96 @@ static void test_event_queue_init(void** state)
     assert_int_equal(queue->head, 0);
     assert_int_equal(queue->tail, 0);
     assert_int_equal(queue->size, 0);
-
-    event_queue_destroy(queue);
+    assert_int_equal(event_queue_destroy(queue), 0);
+    // assert_null(queue);
 }
 
 static void test_event_queue_push(void** state)
 {
-    event_queue_s* queue = event_queue_init();
-    assert_int_equal(event_queue_push(queue, SWAY_EVENT_WINDOW), 0);
+    event_queue_s* queue        = event_queue_init();
+    event_s*       sample_event = create_sample_event(SWAY_EVENT_MODE, NULL, 0);
+    assert_int_equal(event_queue_push(queue, sample_event), 0);
 
     assert_int_equal(queue->head, 0);
     assert_int_equal(queue->tail, 1);
     assert_int_equal(queue->size, 1);
-
-    event_queue_destroy(queue);
+    assert_int_equal(event_queue_destroy(queue), 0);
 }
 
 static void test_event_queue_pop(void** state)
 {
-    event_queue_s*  queue = event_queue_init();
-    enum event_type event;
+    event_queue_s* queue        = event_queue_init();
+    event_s*       sample_event = create_sample_event(SWAY_EVENT_MODE, NULL, 0);
 
-    event_queue_push(queue, SWAY_EVENT_WINDOW);
-    assert_int_equal(event_queue_pop(queue, &event), 0);
-    assert_int_equal(event, SWAY_EVENT_WINDOW);
+    // add new event to queue
+    assert_int_equal(event_queue_push(queue, sample_event), 0);
+    assert_int_equal(queue->size, 1);
+
+    // get last event from event_queue
+    event_s* popped_event = event_queue_pop(queue);
+
+    assert_int_equal(popped_event->type, SWAY_EVENT_MODE);
     assert_int_equal(queue->size, 0);
 
-    event_queue_destroy(queue);
+    assert_int_equal(event_queue_destroy(queue), 0);
+    // assert_null(queue);
 }
 
 static void test_event_queue_is_empty(void** state)
 {
     event_queue_s* queue = event_queue_init();
+
     assert_true(event_queue_is_empty(queue));
 
-    event_queue_push(queue, SWAY_EVENT_WINDOW);
+    event_s* sample_event = create_sample_event(SWAY_EVENT_MODE, NULL, 0);
+    event_queue_push(queue, sample_event);
     assert_false(event_queue_is_empty(queue));
 
-    event_queue_destroy(queue);
+    assert_int_equal(event_queue_destroy(queue), 0);
+    // assert_null(queue);
 }
 
 static void test_event_queue_is_full(void** state)
 {
     event_queue_s* queue = event_queue_init();
+
     assert_false(event_queue_is_full(queue));
 
     for (int i = 0; i < EVENT_QUEUE_SIZE; ++i) {
-        event_queue_push(queue, SWAY_EVENT_WINDOW);
+        event_s* sample_event = create_sample_event(SWAY_EVENT_MODE, NULL, 0);
+        event_queue_push(queue, sample_event);
     }
 
     assert_true(event_queue_is_full(queue));
-    event_queue_destroy(queue);
+
+    assert_int_equal(event_queue_destroy(queue), 0);
+    // assert_null(queue);
 }
 
+static void test_event_queue_destroy(void** state)
+{
+    event_queue_s* queue        = event_queue_init();
+    event_s*       sample_event = create_sample_event(SWAY_EVENT_MODE, NULL, 0);
+    event_queue_push(queue, sample_event);
+
+    assert_int_equal(event_queue_destroy(queue), 0);
+    // assert_null(queue);
+}
+
+static void test_swayipc_get_event(void** state)
+{
+    event_s*       sample_event = create_sample_event(SWAY_EVENT_MODE, NULL, 0);
+    event_queue_s* queue        = event_queue_init();
+
+    // add new event to queue
+    assert_int_equal(event_queue_push(queue, sample_event), 0);
+
+    // get last event from event_queue
+    event_s* event = swayipc_get_event();
+    assert_non_null(event);
+    assert_int_equal(event->type, SWAY_EVENT_MODE);
+    assert_int_equal(swayipc_shutdown(), 0);
+}
 int main(void)
 {
     const struct CMUnitTest tests[] = {
@@ -189,11 +235,13 @@ int main(void)
         cmocka_unit_test(test_swayipc_get_marks),
         cmocka_unit_test(test_swayipc_get_seats),
         cmocka_unit_test(test_swayipc_subscribe),
+        cmocka_unit_test(test_swayipc_get_event),
         cmocka_unit_test(test_event_queue_init),
         cmocka_unit_test(test_event_queue_push),
         cmocka_unit_test(test_event_queue_pop),
         cmocka_unit_test(test_event_queue_is_empty),
         cmocka_unit_test(test_event_queue_is_full),
+        cmocka_unit_test(test_event_queue_destroy),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
