@@ -3,6 +3,8 @@
 A pure c99 helper library for interacting with the `sway` window manager via
 IPC.
 
+!! Not ready for use !!
+
 ## Building and Installing
 
 `swayipc` can be build via the Meson build system. The needed dependencies can
