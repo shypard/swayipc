@@ -1,3 +1,4 @@
+#include "events.h"
 #include "swayipc.h"
 
 // clang-format off
@@ -111,6 +112,67 @@ static void test_swayipc_subscribe(void** state)
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
+static void test_event_queue_init(void** state)
+{
+    event_queue_s* queue = event_queue_init();
+
+    assert_non_null(queue);
+    assert_int_equal(queue->head, 0);
+    assert_int_equal(queue->tail, 0);
+    assert_int_equal(queue->size, 0);
+
+    event_queue_destroy(queue);
+}
+
+static void test_event_queue_push(void** state)
+{
+    event_queue_s* queue = event_queue_init();
+    assert_int_equal(event_queue_push(queue, SWAY_EVENT_WINDOW), 0);
+
+    assert_int_equal(queue->head, 0);
+    assert_int_equal(queue->tail, 1);
+    assert_int_equal(queue->size, 1);
+
+    event_queue_destroy(queue);
+}
+
+static void test_event_queue_pop(void** state)
+{
+    event_queue_s*  queue = event_queue_init();
+    enum event_type event;
+
+    event_queue_push(queue, SWAY_EVENT_WINDOW);
+    assert_int_equal(event_queue_pop(queue, &event), 0);
+    assert_int_equal(event, SWAY_EVENT_WINDOW);
+    assert_int_equal(queue->size, 0);
+
+    event_queue_destroy(queue);
+}
+
+static void test_event_queue_is_empty(void** state)
+{
+    event_queue_s* queue = event_queue_init();
+    assert_true(event_queue_is_empty(queue));
+
+    event_queue_push(queue, SWAY_EVENT_WINDOW);
+    assert_false(event_queue_is_empty(queue));
+
+    event_queue_destroy(queue);
+}
+
+static void test_event_queue_is_full(void** state)
+{
+    event_queue_s* queue = event_queue_init();
+    assert_false(event_queue_is_full(queue));
+
+    for (int i = 0; i < EVENT_QUEUE_SIZE; ++i) {
+        event_queue_push(queue, SWAY_EVENT_WINDOW);
+    }
+
+    assert_true(event_queue_is_full(queue));
+    event_queue_destroy(queue);
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
@@ -127,6 +189,11 @@ int main(void)
         cmocka_unit_test(test_swayipc_get_marks),
         cmocka_unit_test(test_swayipc_get_seats),
         cmocka_unit_test(test_swayipc_subscribe),
+        cmocka_unit_test(test_event_queue_init),
+        cmocka_unit_test(test_event_queue_push),
+        cmocka_unit_test(test_event_queue_pop),
+        cmocka_unit_test(test_event_queue_is_empty),
+        cmocka_unit_test(test_event_queue_is_full),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
