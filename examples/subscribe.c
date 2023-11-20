@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 /* create event handler function in separate thread */
 void* event_handler(void* args)
@@ -14,6 +15,9 @@ void* event_handler(void* args)
 
     /* loop until swayipc is closed */
     while (1) {
+        /* sleep a few milliseconds to avoid 100% CPU usage */
+        usleep(1000);
+
         /* get last event from event_queue */
         event_s* last_event = swayipc_get_event();
 
@@ -50,7 +54,7 @@ int main(void)
 
     /* run until swayipc is closed */
     while (1) {
-        // sleep a few milliseconds
+        /* sleep a few milliseconds to avoid 100% CPU usage */
         swayipc_handle_events();
     }
 

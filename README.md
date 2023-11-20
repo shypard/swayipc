@@ -43,7 +43,5 @@ The following Todos are left for implementation:
 
 - Add examples with JSON en/decoding
 - Implement the following commands:
-    - subscribe
     - send_tick
-- Improve comments
 - Add github pipeline for building and testing
