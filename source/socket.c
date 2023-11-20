@@ -33,6 +33,7 @@ int socket_open(void)
 
     if (connect(fd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
         perror("Cannot connect to sway socket");
+        close(fd);
         return -errno;
     }
 
@@ -113,7 +114,6 @@ int socket_recv(int fd, message_s* msg)
 
 int socket_peek(int fd, message_s* msg) {
     char header[IPC_HEADER_SIZE];
-    printf("Peeking...\n");
 
     // Receive incoming header
     if (recv_n(fd, header, IPC_HEADER_SIZE, MSG_PEEK) == -1) {
@@ -121,14 +121,10 @@ int socket_peek(int fd, message_s* msg) {
         return -errno;
     }
     
-    printf("New header received\n");
-
     // Create message from header
     memcpy(&msg->size, header + sizeof(ipc_magic), sizeof(msg->size));
     memcpy(&msg->type, header + sizeof(ipc_magic) + sizeof(msg->size),
            sizeof(msg->type));
-
-    printf("New message created\n");
 
     return 0;
 }

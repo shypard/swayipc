@@ -10,8 +10,9 @@ public_headers = include_directories('include')
 build_args = [
   '-DPROJECT_NAME=' + meson.project_name(),
   '-DPROJECT_VERSION=' + meson.project_version(),
+  '-std=c99', # C99
   '-Wall', # all warnings
-  '-da', # debug
+  '-fanalyzer', # static analysis
   ]
 
 project_target = shared_library(

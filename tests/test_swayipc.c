@@ -130,7 +130,6 @@ static void test_event_queue_init(void** state)
     assert_int_equal(queue->tail, 0);
     assert_int_equal(queue->size, 0);
     assert_int_equal(event_queue_destroy(queue), 0);
-    // assert_null(queue);
 }
 
 static void test_event_queue_push(void** state)
@@ -161,7 +160,6 @@ static void test_event_queue_pop(void** state)
     assert_int_equal(queue->size, 0);
 
     assert_int_equal(event_queue_destroy(queue), 0);
-    // assert_null(queue);
 }
 
 static void test_event_queue_is_empty(void** state)
@@ -175,7 +173,6 @@ static void test_event_queue_is_empty(void** state)
     assert_false(event_queue_is_empty(queue));
 
     assert_int_equal(event_queue_destroy(queue), 0);
-    // assert_null(queue);
 }
 
 static void test_event_queue_is_full(void** state)
@@ -190,9 +187,7 @@ static void test_event_queue_is_full(void** state)
     }
 
     assert_true(event_queue_is_full(queue));
-
     assert_int_equal(event_queue_destroy(queue), 0);
-    // assert_null(queue);
 }
 
 static void test_event_queue_destroy(void** state)
@@ -202,7 +197,6 @@ static void test_event_queue_destroy(void** state)
     event_queue_push(queue, sample_event);
 
     assert_int_equal(event_queue_destroy(queue), 0);
-    // assert_null(queue);
 }
 
 static void test_swayipc_get_event(void** state)
@@ -219,9 +213,10 @@ static void test_swayipc_get_event(void** state)
     assert_int_equal(event->type, SWAY_EVENT_MODE);
     assert_int_equal(swayipc_shutdown(), 0);
 }
+
 int main(void)
 {
-    const struct CMUnitTest tests[] = {
+    const struct CMUnitTest swayipc_tests[] = {
         cmocka_unit_test(test_swayipc_open),
         cmocka_unit_test(test_swayipc_close),
         cmocka_unit_test(test_swayipc_get_version),
@@ -236,6 +231,9 @@ int main(void)
         cmocka_unit_test(test_swayipc_get_seats),
         cmocka_unit_test(test_swayipc_subscribe),
         cmocka_unit_test(test_swayipc_get_event),
+    };
+
+    const struct CMUnitTest event_queue_tests[] = {
         cmocka_unit_test(test_event_queue_init),
         cmocka_unit_test(test_event_queue_push),
         cmocka_unit_test(test_event_queue_pop),
@@ -244,5 +242,6 @@ int main(void)
         cmocka_unit_test(test_event_queue_destroy),
     };
 
-    return cmocka_run_group_tests(tests, NULL, NULL);
+    return cmocka_run_group_tests(swayipc_tests, NULL, NULL) ||
+           cmocka_run_group_tests(event_queue_tests, NULL, NULL);
 }

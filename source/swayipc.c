@@ -87,19 +87,14 @@ int swayipc_handle_events(void)
 {
     message_s msg;
 
-    printf("Handling new events...\n");
     /* check if there is a message */
     if (socket_peek(swayipc_fd, &msg) < 0) {
         perror("Cannot send request");
         return -errno;
     }
 
-    printf("New message received, checking if event\n");
     /* check incoming is an event and save to event stream */
     if (swayipc_is_event(msg.type)) {
-        printf("There is a new event -> saving to queue\n");
-
-        // create new event
         event_s* event = malloc(sizeof(event_s));
         if (event == NULL) {
             perror("Cannot allocate memory for event");
@@ -114,7 +109,7 @@ int swayipc_handle_events(void)
         event_queue_push(events, event);
 
         // remove message from socket
-        socket_recv(swayipc_fd, NULL);
+        socket_recv(swayipc_fd, &msg);
         return 0;
     } else {
         socket_recv(swayipc_fd, &msg);
