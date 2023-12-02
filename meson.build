@@ -29,8 +29,11 @@ project_target = shared_library(
 install_headers(project_header_files)
 pkg = import('pkgconfig')
 pkg.generate(project_target,
-  name: 'swayipc',
-  description: project_description)
+  name: meson.project_name(),
+  version: meson.project_version(),
+  filebase: meson.project_name(),
+  description: project_description
+  )
 
 # ========================== Test Library =============================
 
@@ -47,18 +50,21 @@ test('cmocka unit tests', test_target)
 
 # ========================== Build Examples ===========================
 
-cjson_dep = dependency('libcjson', 'pthread')
+deps = [
+  dependency('libcjson'),
+  dependency('threads'),
+  ]
 
 example_target = executable(
   'sway_get_version',
   [project_source_files, 'examples/get_version.c'],
-  dependencies : [cjson_dep],
+  dependencies : deps,
   include_directories : public_headers,
   )
 
 example_target = executable(
   'sway_subscribe',
   [project_source_files, 'examples/subscribe.c'],
-  dependencies : [cjson_dep],
+  dependencies : deps,
   include_directories : public_headers,
   )
