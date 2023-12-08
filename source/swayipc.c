@@ -11,8 +11,9 @@
 #include <string.h>
 #include <time.h>
 
+#define SWAYIPC_SLEEP_TIME_NS 50 * 1000 * 1000 // 50ms
+
 // Global variables
-int            sleep_time_ns  = 50 * 1000 * 1000; // 50ms
 int            run_event_loop = 1;
 int            swayipc_fd;
 event_queue_s* events;
@@ -43,7 +44,7 @@ int swayipc_init(void)
 
 void* swayipc_start_event_loop(void*)
 {
-    struct timespec ts = {.tv_sec = 0, .tv_nsec = sleep_time_ns};
+    struct timespec ts = {.tv_sec = 0, .tv_nsec = SWAYIPC_SLEEP_TIME_NS};
     while (run_event_loop) {
         nanosleep(&ts, NULL);
         swayipc_handle_events();
