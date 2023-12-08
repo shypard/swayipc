@@ -38,6 +38,7 @@ int socket_recv(int fd, message_s* msg);
 
 /**
  * Peeks at the next message in the socket without removing it from the queue.
+ * Does not block if there is no message in the queue.
  *
  * @param fd File descriptor of the socket
  * @param msg Pointer to the message structure to store the peeked message

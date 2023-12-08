@@ -30,14 +30,15 @@ enum message_type {
 extern int swayipc_fd;
 
 /**
- * Initializes swayipc.
+ * Opens the socket to sway, creates the event queue and starts a pthread to
+ * save sway events to the queue.
  *
  * @return 0 on success or -1 on error.
  */
 extern int swayipc_init(void);
 
 /**
- * Shuts down swayipc.
+ * Closes the sway socket, frees the event queue and stops the pthread.
  *
  * @return 0 on success or -1 on error.
  */

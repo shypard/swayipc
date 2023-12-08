@@ -116,9 +116,8 @@ int socket_peek(int fd, message_s* msg)
 {
     char header[IPC_HEADER_SIZE];
 
-    // Receive incoming header
-    if (recv_n(fd, header, IPC_HEADER_SIZE, MSG_PEEK) == -1) {
-        perror("Unable to receive IPC response");
+    // Receive incoming header, don't block if no data is available
+    if (recv_n(fd, header, IPC_HEADER_SIZE, MSG_PEEK | MSG_DONTWAIT) == -1) {
         return -errno;
     }
 

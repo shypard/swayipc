@@ -1,14 +1,25 @@
+#define _GNU_SOURCE
+
 #include "events.h"
 #include "socket.h"
 #include "swayipc.h"
 
 #include <errno.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
+// Global variables
+int            sleep_time_ns  = 50 * 1000 * 1000; // 50ms
+int            run_event_loop = 1;
 int            swayipc_fd;
 event_queue_s* events;
+pthread_t      event_loop_thread;
+
+// Internal function declarations
+void* swayipc_start_event_loop(void*);
 
 int swayipc_init(void)
 {
@@ -24,11 +35,26 @@ int swayipc_init(void)
         return -errno;
     }
 
+    // start listening for events
+    pthread_create(&event_loop_thread, NULL, swayipc_start_event_loop, NULL);
+
     return 0;
+}
+
+void* swayipc_start_event_loop(void*)
+{
+    struct timespec ts = {.tv_sec = 0, .tv_nsec = sleep_time_ns};
+    while (run_event_loop) {
+        nanosleep(&ts, NULL);
+        swayipc_handle_events();
+    }
+    return NULL;
 }
 
 int swayipc_shutdown(void)
 {
+    run_event_loop = 0;
+    pthread_join(event_loop_thread, NULL);
     event_queue_destroy(events);
     socket_close(swayipc_fd);
     return 0;
@@ -87,13 +113,14 @@ int swayipc_handle_events(void)
 {
     message_s msg;
 
-    /* check if there is a message */
+    // check if there is a message
     if (socket_peek(swayipc_fd, &msg) < 0) {
-        perror("Cannot send request");
+        if (errno == EAGAIN || errno == EWOULDBLOCK) return 0;
+        perror("Cannot peek socket");
         return -errno;
     }
 
-    /* check incoming is an event and save to event stream */
+    // check incoming is an event and save to event stream
     if (swayipc_is_event(msg.type)) {
         event_s* event = malloc(sizeof(event_s));
         if (event == NULL) {
@@ -101,17 +128,18 @@ int swayipc_handle_events(void)
             return -errno;
         }
 
+        // read full message from socket
+        socket_recv(swayipc_fd, &msg);
+
         event->type = msg.type;
         event->size = msg.size;
         event->data = msg.data;
 
         // push event to event queue
         event_queue_push(events, event);
-
-        // remove message from socket
-        socket_recv(swayipc_fd, &msg);
         return 0;
     } else {
+        // clear message from socket
         socket_recv(swayipc_fd, &msg);
         return -1;
     }
