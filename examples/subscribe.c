@@ -1,22 +1,50 @@
+#define _GNU_SOURCE
+
 #include "swayipc.h"
 
 #include <cJSON.h>
 #include <pthread.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <time.h>
 
-/* create event handler function in separate thread */
-void* event_handler(void* args)
+/* Global variables */
+int running = 1;
+
+/* signal handler */
+void signal_handler(int signal_num) { running = 0; }
+
+/* split windows */
+void split(cJSON* json)
 {
-    cJSON* json   = NULL;
-    char*  pretty = NULL;
+    /* pretty print event as JSON */
+    char* j = cJSON_Print(json);
+    printf("sway event:\n%s\n", j);
+    free(j);
+}
+
+int main(void)
+{
+    cJSON*          json  = NULL;
+    struct timespec ts    = {0, 1000 * 1000 * 10}; // 100 milliseconds
+    enum event_type sub[] = {SWAY_EVENT_WINDOW};
+
+    /* register signal handlers */
+    signal(SIGINT, signal_handler);  // SIGINT: Ctrl+C
+    signal(SIGTERM, signal_handler); // SIGTERM: Termination signal
+
+    /* initialize swayipc */
+    swayipc_init();
+
+    /* subscribe to WINDOW and WORKSPACE events */
+    swayipc_subscribe(sub, 1);
 
     /* loop until swayipc is closed */
-    while (1) {
+    while (running) {
         /* sleep a few milliseconds to avoid 100% CPU usage */
-        usleep(1000);
+        nanosleep(&ts, NULL);
 
         /* get last event from event_queue */
         event_s* last_event = swayipc_get_event();
@@ -25,40 +53,19 @@ void* event_handler(void* args)
         if (last_event == NULL) continue;
 
         if (last_event->type == SWAY_EVENT_WINDOW) {
+
+            /* parse JSON data */
             if ((json = cJSON_Parse(last_event->data)) == NULL) {
-                printf("Error before: [%s]\n", cJSON_GetErrorPtr());
+                printf("autotiling: error before: [%s]\n", cJSON_GetErrorPtr());
                 continue;
             }
 
-            /* pretty print event as JSON */
-            pretty = cJSON_Print(json);
-            printf("sway event:\n%s\n", pretty);
-            free(pretty);
+            /* split windows */
+            split(json);
         }
     }
-}
 
-int main(void)
-{
-    /* initialize swayipc */
-    swayipc_init();
-
-    enum event_type to_sub[] = {SWAY_EVENT_WORKSPACE, SWAY_EVENT_WINDOW};
-
-    /* subscribe to WINDOW and WORKSPACE events */
-    swayipc_subscribe(to_sub, 2);
-
-    /* start event handler thread */
-    pthread_t thread;
-    pthread_create(&thread, NULL, event_handler, NULL);
-
-    /* run until swayipc is closed */
-    while (1) {
-        /* sleep a few milliseconds to avoid 100% CPU usage */
-        swayipc_handle_events();
-    }
-
-    /* close swayipc */
+    /* shutdown swayipc */
     swayipc_shutdown();
 
     return 0;
