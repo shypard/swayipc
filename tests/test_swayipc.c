@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -214,6 +215,14 @@ static void test_swayipc_get_event(void** state)
     assert_int_equal(swayipc_shutdown(), 0);
 }
 
+static void test_swayipc_send_command(void** state)
+{
+    const char* cmd = "exec notify-send \"cmocka test\"";
+    assert_int_equal(swayipc_init(), 0);
+    assert_int_equal(swayipc_send_command(cmd, strlen(cmd)), 0);
+    assert_int_equal(swayipc_shutdown(), 0);
+}
+
 int main(void)
 {
     const struct CMUnitTest swayipc_tests[] = {
@@ -231,6 +240,7 @@ int main(void)
         cmocka_unit_test(test_swayipc_get_seats),
         cmocka_unit_test(test_swayipc_subscribe),
         cmocka_unit_test(test_swayipc_get_event),
+        cmocka_unit_test(test_swayipc_send_command),
     };
 
     const struct CMUnitTest event_queue_tests[] = {

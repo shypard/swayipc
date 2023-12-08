@@ -242,3 +242,17 @@ int swayipc_get_seats(char* buf, size_t len)
 {
     return swayipc_get_info(GET_SEATS, buf, len);
 }
+
+int swayipc_send_command(const char* command, size_t len)
+{
+    message_s msg = {.size = len, .type = RUN_COMMAND, .data = command};
+    message_s reply;
+
+    if (socket_request(swayipc_fd, &msg, &reply) < 0) {
+        perror("Cannot send request");
+        return -errno;
+    }
+
+    // TODO: Use a more sophisticated check
+    return strncmp("[ { \"success\": true } ]", reply.data, reply.size);
+}
