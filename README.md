@@ -41,7 +41,6 @@ the project (use `clang-format`).
 
 The following Todos are left for implementation:
 
-- Add examples with JSON en/decoding
 - Implement the following commands:
     - send_tick
 - Add github pipeline for building and testing
